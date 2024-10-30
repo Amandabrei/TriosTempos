@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro com Tabela e Ordenação por Tempo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f2f2f2;
+    }
+    .container {
+      width: 400px;
+      padding: 20px;
+      background-color: #ffffff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 5px;
+      text-align: center;
+    }
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 5px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Cadastro</h2>
+    <input type="text" id="nome" placeholder="Nome">
+    <button onclick="adicionarNome()">Salvar Nome</button>
+    <input type="number" id="tempo" placeholder="Tempo (em segundos)">
+    <button onclick="salvarTempo()">Salvar Tempo</button>
+    <button onclick="ordenarPorTempo()">Ordenar por Menor Tempo</button>
+
+    <table id="tabela">
+      <thead>
+        <tr>
+          <th>Nome 1</th>
+          <th>Nome 2</th>
+          <th>Nome 3</th>
+          <th>Tempo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- As linhas serão inseridas aqui -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const nomesUnicos = new Set();
+    let nomesTemp = [];
+    const tabela = document.getElementById('tabela').getElementsByTagName('tbody')[0];
+
+    function adicionarNome() {
+      const nome = document.getElementById('nome').value.trim();
+
+      if (nome && !nomesUnicos.has(nome)) {
+        nomesUnicos.add(nome);
+        nomesTemp.push(nome);
+        
+        if (nomesTemp.length === 3) {
+          const novaLinha = tabela.insertRow();
+          for (let i = 0; i < 3; i++) {
+            const celula = novaLinha.insertCell(i);
+            celula.textContent = nomesTemp[i];
+          }
+          novaLinha.insertCell(3).textContent = "N/A";
+          nomesTemp = [];
+        }
+        
+        document.getElementById('nome').value = '';
+      } else if (!nome) {
+        alert('Por favor, insira um nome.');
+      } else {
+        alert('Este nome já foi adicionado.');
+      }
+    }
+
+    function salvarTempo() {
+      const tempo = document.getElementById('tempo').value;
+
+      if (tempo && !isNaN(tempo)) {
+        for (let i = 0; i < tabela.rows.length; i++) {
+          const linha = tabela.rows[i];
+          const celulaTempo = linha.cells[3];
+
+          if (celulaTempo.textContent === "N/A") {
+            celulaTempo.textContent = tempo;
+            document.getElementById('tempo').value = '';
+            return;
+          }
+        }
+        alert("Todas as linhas já têm um tempo registrado.");
+      } else {
+        alert('Por favor, insira um valor de tempo válido.');
+      }
+    }
+
+    function ordenarPorTempo() {
+      const linhas = Array.from(tabela.rows);
+
+      linhas.sort((a, b) => {
+        const tempoA = a.cells[3].textContent === "N/A" ? Infinity : parseInt(a.cells[3].textContent);
+        const tempoB = b.cells[3].textContent === "N/A" ? Infinity : parseInt(b.cells[3].textContent);
+        return tempoA - tempoB;
+      });
+
+      linhas.forEach(linha => tabela.appendChild(linha));
+    }
+  </script>
+</body>
+</html>
